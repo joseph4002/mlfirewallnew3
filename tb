@@ -1,0 +1,265 @@
+`timescale 1ns / 1ps
+
+
+
+module tb_dt_firewall;
+
+
+
+reg [15:0] dbytes;
+
+reg [15:0] sbytes;
+
+reg [15:0] dur;
+
+reg [7:0] proto;
+
+reg [7:0] state;
+
+reg [15:0] spkts;
+
+reg [15:0] dpkts;
+
+
+
+wire [2:0] attack;
+
+
+
+dt_firewall DUT(
+
+
+
+.dbytes(dbytes),
+
+.sbytes(sbytes),
+
+.dur(dur),
+
+.proto(proto),
+
+.state(state),
+
+.spkts(spkts),
+
+.dpkts(dpkts),
+
+.attack(attack)
+
+
+
+);
+
+
+
+
+
+// display result
+
+task show_result;
+
+begin
+
+
+
+case(attack)
+
+
+
+0: $display("NORMAL TRAFFIC");
+
+1: $display("DOS ATTACK");
+
+2: $display("PORTSCAN ATTACK");
+
+3: $display("BRUTEFORCE ATTACK");
+
+4: $display("ATTACK DETECTED");
+
+
+
+endcase
+
+
+
+end
+
+endtask
+
+
+
+
+
+initial begin
+
+
+
+$display("===== DATASET BASED TEST =====");
+
+
+
+
+
+//--------------------------------
+
+// NORMAL PATTERN 1 (dataset row)
+
+//--------------------------------
+
+
+
+proto  = 80;
+
+state  = 2;
+
+dur    = 2;
+
+sbytes = 60;
+
+dbytes = 40;
+
+spkts  = 2;
+
+dpkts  = 2;
+
+
+
+#1000 show_result;
+
+
+
+
+
+//--------------------------------
+
+// NORMAL PATTERN 2
+
+//--------------------------------
+
+
+
+proto  = 17;
+
+state  = 1;
+
+dur    = 3;
+
+sbytes = 80;
+
+dbytes = 60;
+
+spkts  = 3;
+
+dpkts  = 2;
+
+
+
+#1000 show_result;
+
+
+
+
+
+//--------------------------------
+
+// DOS PATTERN
+
+//--------------------------------
+
+
+
+proto  = 6;
+
+state  = 2;
+
+dur    = 1;
+
+sbytes = 200;
+
+dbytes = 900;
+
+spkts  = 300;
+
+dpkts  = 200;
+
+
+
+#1000 show_result;
+
+
+
+
+
+//--------------------------------
+
+// PORTSCAN PATTERN
+
+//--------------------------------
+
+
+
+proto  = 6;
+
+state  = 2;
+
+dur    = 0;
+
+sbytes = 30;
+
+dbytes = 40;
+
+spkts  = 30;
+
+dpkts  = 1;
+
+
+
+#1000 show_result;
+
+
+
+
+
+//--------------------------------
+
+// BRUTEFORCE PATTERN
+
+//--------------------------------
+
+
+
+proto  = 6;
+
+state  = 6;
+
+dur    = 20;
+
+sbytes = 100;
+
+dbytes = 120;
+
+spkts  = 15;
+
+dpkts  = 20;
+
+
+
+#1000 show_result;
+
+
+
+
+
+$display("===== TEST COMPLETE =====");
+
+
+
+$finish;
+
+
+
+end
+
+
+
+endmodule
