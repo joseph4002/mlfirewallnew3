@@ -1,0 +1,701 @@
+`timescale 1ns / 1ps
+
+
+
+module dt_firewall(
+
+
+
+input  [15:0] dbytes,
+
+input  [15:0] sbytes,
+
+input  [15:0] dur,
+
+input  [7:0]  proto,
+
+input  [7:0]  state,
+
+input  [15:0] spkts,
+
+input  [15:0] dpkts,
+
+
+
+output reg [2:0] attack
+
+
+
+);
+
+
+
+/*
+
+0 NORMAL
+
+1 DOS
+
+2 PORTSCAN
+
+3 BRUTEFORCE
+
+4 ATTACK DETECTED
+
+*/
+
+
+
+always @(*) begin
+
+
+
+attack = 4;
+
+
+
+//--------------------------------
+
+// ROOT
+
+//--------------------------------
+
+
+
+if(dbytes <= 84) begin
+
+
+
+    if(sbytes <= 105) begin
+
+
+
+        if(dur <= 0) begin
+
+
+
+            if(proto <= 47) begin
+
+
+
+                if(spkts <= 2) begin
+
+                    if(dpkts <= 1)
+
+                        attack = 2;
+
+                    else
+
+                        attack = 2;
+
+                end
+
+
+
+                else begin
+
+                    if(spkts <= 6)
+
+                        attack = 2;
+
+                    else
+
+                        attack = 1;
+
+                end
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(proto <= 74) begin
+
+
+
+                    if(spkts <= 4)
+
+                        attack = 1;
+
+                    else
+
+                        attack = 2;
+
+
+
+                end
+
+
+
+                else begin
+
+
+
+                    if(proto <= 98) begin
+
+                        if(dpkts <= 2)
+
+                            attack = 0;
+
+                        else
+
+                            attack = 1;
+
+                    end
+
+
+
+                    else begin
+
+                        if(spkts <= 3)
+
+                            attack = 0;
+
+                        else
+
+                            attack = 1;
+
+                    end
+
+
+
+                end
+
+
+
+            end
+
+
+
+        end
+
+
+
+//--------------------------------
+
+// dur > 0
+
+//--------------------------------
+
+
+
+        else begin
+
+
+
+            if(sbytes <= 73) begin
+
+
+
+                if(proto <= 61) begin
+
+                    if(dpkts <= 3)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+                end
+
+
+
+                else begin
+
+                    if(spkts <= 4)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+                end
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(proto <= 98) begin
+
+                    if(dpkts <= 3)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+                end
+
+
+
+                else begin
+
+                    if(spkts <= 5)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+                end
+
+
+
+            end
+
+
+
+        end
+
+
+
+    end
+
+
+
+//--------------------------------
+
+// sbytes >105
+
+//--------------------------------
+
+
+
+    else begin
+
+
+
+        if(sbytes <= 168) begin
+
+
+
+            if(dbytes <= 28) begin
+
+
+
+                if(spkts <= 3)
+
+                    attack = 1;
+
+                else
+
+                    attack = 2;
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(dpkts <= 2)
+
+                    attack = 2;
+
+                else
+
+                    attack = 1;
+
+
+
+            end
+
+
+
+        end
+
+
+
+        else begin
+
+
+
+            if(spkts <= 3) begin
+
+
+
+                if(dpkts <= 1)
+
+                    attack = 2;
+
+                else
+
+                    attack = 1;
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(state <= 4)
+
+                    attack = 1;
+
+                else
+
+                    attack = 2;
+
+
+
+            end
+
+
+
+        end
+
+
+
+    end
+
+
+
+end
+
+
+
+
+
+//--------------------------------
+
+// RIGHT SIDE
+
+//--------------------------------
+
+
+
+else begin
+
+
+
+    if(dur <= 1) begin
+
+
+
+        if(sbytes <= 128) begin
+
+
+
+            if(dbytes <= 313) begin
+
+
+
+                if(spkts <= 5)
+
+                    attack = 0;
+
+
+
+                else begin
+
+                    if(dpkts <= 5)
+
+                        attack = 1;
+
+                    else
+
+                        attack = 2;
+
+                end
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(dpkts <= 5)
+
+                    attack = 2;
+
+                else
+
+                    attack = 1;
+
+
+
+            end
+
+
+
+        end
+
+
+
+        else begin
+
+
+
+            if(proto <= 105) begin
+
+
+
+                if(spkts <= 6)
+
+                    attack = 0;
+
+                else
+
+                    attack = 2;
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(dpkts <= 3)
+
+                    attack = 2;
+
+                else
+
+                    attack = 1;
+
+
+
+            end
+
+
+
+        end
+
+
+
+    end
+
+
+
+
+
+//--------------------------------
+
+// dur > 1
+
+//--------------------------------
+
+
+
+    else begin
+
+
+
+        if(dbytes <= 354) begin
+
+
+
+            if(sbytes <= 563) begin
+
+
+
+                if(spkts <= 9) begin
+
+
+
+                    if(dpkts <= 3)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+
+
+                end
+
+
+
+                else begin
+
+
+
+                    if(state <= 3)
+
+                        attack = 1;
+
+                    else
+
+                        attack = 2;
+
+
+
+                end
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(sbytes <= 900) begin
+
+
+
+                    if(dpkts <= 10)
+
+                        attack = 0;
+
+                    else
+
+                        attack = 1;
+
+
+
+                end
+
+
+
+                else begin
+
+
+
+                    if(spkts <= 20)
+
+                        attack = 2;
+
+                    else
+
+                        attack = 3;
+
+
+
+                end
+
+
+
+            end
+
+
+
+        end
+
+
+
+//--------------------------------
+
+// heavy traffic
+
+//--------------------------------
+
+
+
+        else begin
+
+
+
+            if(dpkts <= 10) begin
+
+
+
+                if(spkts <= 15)
+
+                    attack = 1;
+
+                else
+
+                    attack = 2;
+
+
+
+            end
+
+
+
+            else begin
+
+
+
+                if(dur <= 10)
+
+                    attack = 2;
+
+                else
+
+                    attack = 3;
+
+
+
+            end
+
+
+
+        end
+
+
+
+    end
+
+
+
+end
+
+
+
+
+
+//--------------------------------
+
+// Additional Attack Detection
+
+//--------------------------------
+
+
+
+if(dur > 15 && spkts > 10 && dpkts > 10)
+
+    attack = 3;
+
+
+
+if(spkts > 25 && dpkts <= 1)
+
+    attack = 2;
+
+
+
+if(dbytes > 800 && spkts > 200)
+
+    attack = 1;
+
+
+
+end
+
+
+
+endmodule
