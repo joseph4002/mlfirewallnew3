@@ -1,0 +1,233 @@
+`timescale 1ns / 1ps
+
+
+
+module firewall_top(
+
+
+
+input clk,
+
+input rx,
+
+
+
+output tx
+
+
+
+);
+
+
+
+wire [7:0] rx_data;
+
+wire valid;
+
+
+
+reg [15:0] dbytes = 0;
+
+reg [15:0] sbytes = 0;
+
+reg [15:0] dur = 0;
+
+reg [7:0] proto = 0;
+
+reg [7:0] state = 0;
+
+reg [15:0] spkts = 0;
+
+reg [15:0] dpkts = 0;
+
+
+
+wire [2:0] attack;
+
+
+
+reg send = 0;
+
+wire busy;
+
+
+
+
+
+// UART RX
+
+uart_rx RX(
+
+.clk(clk),
+
+.rx(rx),
+
+.data_out(rx_data),
+
+.data_valid(valid)
+
+);
+
+
+
+
+
+//--------------------------------
+
+// Feature Loader
+
+//--------------------------------
+
+
+
+reg [3:0] byte_count = 0;
+
+
+
+always @(posedge clk) begin
+
+
+
+send <= 0;
+
+
+
+if(valid) begin
+
+
+
+    case(byte_count)
+
+
+
+    0: proto <= rx_data;
+
+    1: state <= rx_data;
+
+
+
+    2: dur[15:8] <= rx_data;
+
+    3: dur[7:0] <= rx_data;
+
+
+
+    4: sbytes[15:8] <= rx_data;
+
+    5: sbytes[7:0] <= rx_data;
+
+
+
+    6: dbytes[15:8] <= rx_data;
+
+    7: dbytes[7:0] <= rx_data;
+
+
+
+    8: spkts[15:8] <= rx_data;
+
+    9: spkts[7:0] <= rx_data;
+
+
+
+    10: dpkts[15:8] <= rx_data;
+
+    11: begin
+
+        dpkts[7:0] <= rx_data;
+
+        send <= 1;
+
+    end
+
+
+
+    endcase
+
+
+
+    if(byte_count < 11)
+
+        byte_count <= byte_count + 1;
+
+    else
+
+        byte_count <= 0;
+
+
+
+end
+
+
+
+end
+
+
+
+
+
+//--------------------------------
+
+// Decision Tree
+
+//--------------------------------
+
+
+
+dt_firewall FIREWALL(
+
+
+
+.dbytes(dbytes),
+
+.sbytes(sbytes),
+
+.dur(dur),
+
+.proto(proto),
+
+.state(state),
+
+.spkts(spkts),
+
+.dpkts(dpkts),
+
+.attack(attack)
+
+
+
+);
+
+
+
+
+
+//--------------------------------
+
+// UART TX
+
+//--------------------------------
+
+
+
+uart_tx TX(
+
+
+
+.clk(clk),
+
+.send(send),
+
+.data_in({5'b00000,attack}),
+
+.tx(tx),
+
+.busy(busy)
+
+
+
+);
+
+
+
+endmodule
